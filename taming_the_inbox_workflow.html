@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taming the Inbox: A Copilot Workflow for Faculty</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cnm: {
+                            blue: '#002B49',
+                            gold: '#FFC72C',
+                            accent: '#00A3E0',
+                            dark: '#0B1120',
+                            card: '#161F33',
+                            border: '#1E293B',
+                            hover: '#26334d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Embedded Styles -->
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1120;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFC72C;
+        }
+
+        .glass-panel {
+            background: rgba(22, 31, 51, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .text-container {
+            font-family: 'JetBrains Mono', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            tab-size: 4;
+        }
+
+        /* Light Theme Overrides */
+        html:not(.dark) body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        html:not(.dark) header {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) header .text-white {
+            color: #0f172a !important;
+        }
+        html:not(.dark) header .text-slate-300, 
+        html:not(.dark) header .text-slate-400 {
+            color: #475569 !important;
+        }
+        html:not(.dark) .glass-panel {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        html:not(.dark) .glass-panel .text-white {
+            color: #0f172a !important;
+        }
+        html:not(.dark) .glass-panel .text-slate-300,
+        html:not(.dark) .glass-panel .text-slate-400 {
+            color: #334155 !important;
+        }
+        html:not(.dark) .bg-slate-900,
+        html:not(.dark) .bg-slate-950,
+        html:not(.dark) .bg-cnm-dark {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) pre, 
+        html:not(.dark) code,
+        html:not(.dark) .text-container {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) input,
+        html:not(.dark) select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) .category-btn {
+            background-color: #f1f5f9 !important;
+            color: #334155 !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) .category-btn.active {
+            background-color: #FFC72C !important;
+            color: #0f172a !important;
+            border-color: #FFC72C !important;
+        }
+    </style>
+</head>
+<body class="bg-cnm-dark text-slate-100 font-sans min-h-screen relative flex flex-col select-none overflow-x-hidden">
+
+    <!-- Navigation / Header Bar -->
+    <header class="sticky top-0 z-40 bg-cnm-dark/95 border-b border-slate-800 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cnm-blue via-slate-900 to-cnm-gold p-0.5 shadow-md flex items-center justify-center">
+                    <div class="w-full h-full bg-cnm-blue rounded-[10px] flex items-center justify-center text-cnm-gold font-extrabold text-sm font-mono">
+                        CNM
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-sm sm:text-base font-bold text-white tracking-tight">Taming the Inbox: A Copilot Workflow for Faculty</h1>
+                        <span class="px-2 py-0.5 rounded bg-cnm-gold/20 text-cnm-gold text-xs font-mono font-bold border border-cnm-gold/30">HUB</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 font-mono hidden sm:block">Central New Mexico Community College</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 text-xs font-mono">
+                <!-- Search Bar -->
+                <div class="relative hidden md:block w-48 lg:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="filterDocuments()" placeholder="Search documents..." 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cnm-gold transition-colors">
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" id="themeToggleBtn" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:border-cnm-gold transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-sun text-cnm-gold" id="themeIcon"></i>
+                    <span id="themeText">Light</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+        
+        <!-- Hero Overview Banner -->
+        <div class="p-6 rounded-3xl glass-panel relative overflow-hidden shadow-2xl border border-slate-700/60">
+            <div class="absolute -top-20 -right-20 w-80 h-80 bg-cnm-accent/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-cnm-gold/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cnm-blue border border-cnm-accent/40 text-xs text-cnm-accent font-mono mb-3">
+                        <i class="fa-solid fa-folder-open text-cnm-gold"></i>
+                        <span>CNM Academic Affairs & Faculty Toolkit</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+                        Taming the Inbox: <span class="bg-gradient-to-r from-cnm-gold via-amber-300 to-cnm-accent bg-clip-text text-transparent">A Copilot Workflow for Faculty</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        Access complete text guidelines for faculty observations, student drafting preferences, Outlook email triage assistants, review evidence discovery, and course improvement algorithms. Copy raw text instantly or download standalone <code class="text-cnm-gold font-mono">.txt</code> files for local use.
+                    </p>
+                </div>
+
+                <!-- Metrics Box -->
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-xs font-mono w-full md:w-auto shrink-0 space-y-2">
+                    <div class="text-cnm-gold font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-lines"></i> Repository Metrics
+                    </div>
+                    <ul class="space-y-1 text-slate-300 text-[11px]">
+                        <li class="flex items-center justify-between gap-4"><span>Documents Loaded:</span> <strong class="text-cnm-accent" id="statCount">5 Files</strong></li>
+                        <li class="flex items-center justify-between gap-4"><span>Format Standard:</span> <strong class="text-emerald-400">Plain Text (.txt)</strong></li>
+                        <li class="flex items-center justify-between gap-4"><span>Export Options:</span> <strong class="text-cnm-gold">Copy & Download</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Controls Bar -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <!-- Quick Anchor Links named after text file names -->
+            <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                <span class="text-slate-400 text-xs font-semibold mr-1 flex items-center gap-1"><i class="fa-solid fa-link text-cnm-gold"></i> Quick Links:</span>
+                <a href="#card-doc1" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:border-cnm-gold hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-lines text-cnm-accent"></i> Admin Answers.txt
+                </a>
+                <a href="#card-doc2" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:border-cnm-gold hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-lines text-amber-400"></i> Editing Preferences.txt
+                </a>
+                <a href="#card-doc3" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:border-cnm-gold hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-lines text-purple-400"></i> Email Check.txt
+                </a>
+                <a href="#card-doc4" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:border-cnm-gold hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-lines text-purple-400"></i> Faculty Review Search Prompt.txt
+                </a>
+                <a href="#card-doc5" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:border-cnm-gold hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-lines text-purple-400"></i> semester analysis.txt
+                </a>
+            </div>
+
+            <!-- Mobile Search Input -->
+            <div class="md:hidden relative w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                <input type="text" id="searchInputMobile" oninput="filterDocumentsMobile()" placeholder="Search documents..." 
+                    class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cnm-gold">
+            </div>
+        </div>
+
+        <!-- Document Cards Container -->
+        <div id="documentGrid" class="space-y-6">
+            <!-- Rendered dynamically by JavaScript -->
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-cnm-gold text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none font-mono text-xs">
+        <i class="fa-solid fa-circle-check text-cnm-gold text-base"></i>
+        <span id="toastMessage">Action completed successfully</span>
+    </div>
+
+    <script>
+        // Full Document Dataset containing exact text provided
+        const documentsData = [
+            {
+                id: "doc1",
+                title: "Admin Answers.txt",
+                filename: "Admin Answers.txt",
+                category: "procedures",
+                categoryLabel: "Forms & Procedures",
+                badgeColor: "bg-cnm-accent/20 text-cnm-accent border-cnm-accent/30",
+                icon: "fa-clipboard-check",
+                dateInfo: "Wednesday, June 8, 2022 - 5:32 PM",
+                summary: "Step-by-step administrative workflow for requesting Brightspace TA access, observing faculty, signing forms, and coordinating with Associate Deans.",
+                content: `Faculty Observations
+
+Forms & Procedures
+Wednesday, June 8, 2022 - 5:32 PM
+
+Steps:
+
+1. Ask for Brightspace Access (TA)
+   a. IS@cnm.edu
+   b. cc the person you are going to observe
+2. We observe
+3. Sign
+4. Send it to AD - Theresa (ttorres57@cnm.edu)
+5. Meet with part-timer (in-person or by Zoom) to discuss observation AND send to part-timer to sign after Theresa's ok
+6. Send to Laura Martinez (lmartinez7@cnm.edu) and Theresa after it's been signed by part-timer
+
+(The page also has two attached Word docs: "Online Class Observation" and "Classroom_...")`
+            },
+            {
+                id: "doc2",
+                title: "Editing Preferences.txt",
+                filename: "Editing Preferences.txt",
+                category: "guidelines",
+                categoryLabel: "Editing Guidelines",
+                badgeColor: "bg-amber-400/20 text-amber-400 border-amber-400/30",
+                icon: "fa-pen-nib",
+                dateInfo: "Instructional Communication Standard",
+                summary: "Style guide rules for student communication: compassionate opening, relational wording, plain-text formatting, and direct outcome explanations.",
+                content: `# Editing Preferences for Future Drafts
+
+## Compassionate but Measured Opening
+
+- Acknowledge the student’s circumstances without overstating or characterizing them.
+- Prefer “health issues” over “serious health issues” unless the stronger description is necessary.
+- Include a brief supportive statement such as, “I hope your recovery goes smoothly.”
+
+## Natural, Relational Wording
+
+- Prefer “our class” to repeatedly naming the course number when the context is already clear.
+- Write in a personal but professional instructor voice.
+
+## Concise Presentation of Facts
+
+- State the student’s academic situation clearly and objectively.
+- Include concrete context, such as the current week, the course length, and the amount of work completed.
+- Avoid unnecessary elaboration or repetition.
+
+## Minimum Necessary Policy Language
+
+- Include the policy that directly determines the decision.
+- Do not stack several policies when one policy sufficiently explains the outcome.
+- Favor institutional policy when it provides the clearest basis for the decision.
+
+## Avoid Unnecessarily Punitive Language
+
+- Remove quotations that may sound accusatory, harsh, or defensive if they do not add anything essential.
+- Do not include every potentially applicable syllabus rule simply because it is available.
+- Focus on explaining the decision rather than reprimanding the student.
+
+## Direct Explanation of the Outcome
+
+- Clearly state what can or cannot be approved.
+- Avoid vague wording that could create false hope.
+- Explain the practical reality, such as there not being a realistic path to a passing grade in the remaining time.
+
+## Actionable Next Steps
+
+- Tell the student specifically whom to contact and what to discuss.
+- Include verified phone numbers, locations, office hours, or other useful contact details when available.
+- Mention relevant academic, advising, financial-aid, or student-support implications as appropriate.
+
+## Plain-Text Formatting
+
+- No bold formatting.
+- No em dashes.
+- No citations or references in the student-facing message.
+- No unnecessary headings, lists, or elaborate formatting.
+
+## Overall Tone
+
+- Neutral and supportive.
+- Firm without sounding cold.
+- Empathetic without promising exceptions.
+- Policy-aligned without sounding legalistic.`
+            },
+            {
+                id: "doc3",
+                title: "Email Check.txt",
+                filename: "Email Check.txt",
+                category: "prompts",
+                categoryLabel: "AI Prompt",
+                badgeColor: "bg-purple-400/20 text-purple-400 border-purple-400/30",
+                icon: "fa-robot",
+                dateInfo: "M365 Copilot / Outlook System Prompt",
+                summary: "Systematic 3-step audit prompt for Outlook Inbox/Sent Items to categorize student emails, detect pending follow-ups, and enforce reply rules.",
+                content: `You are an executive email triage assistant running within Microsoft Outlook. Perform a systematic, 3-step audit of my Inbox and Sent Items.
+
+NOTE: any email categorized as "Student - Needs Triage" should be checked.
+
+### ENVIRONMENT CONSTRAINTS (CRITICAL)
+- CURRENT TODAY'S DATE: [Insert Today's Date, e.g., July 24, 2026]
+- SCAN WINDOW: Search for ALL messages with a RECEIVE or SENT timestamp on or after [Insert Date 10 Days Ago, e.g., July 14, 2026].
+- DO NOT filter search queries by thread creation date; evaluate threads based on the TIMESTAMP OF THE LATEST MESSAGE in the thread.
+
+---
+
+### STEP 1: IDENTIFY STUDENT THREADS
+Scan all email activity within the past 10 days and pull threads involving students. A student thread includes:
+1. Senders with email domains ending in "@student.cnm.edu"
+2. Senders discussing courses, grades, assignments, SIMnet, or LMS access (to catch personal email addresses or forwarders).
+
+---
+
+### STEP 2: APPLY FILTER & EXCLUSION RULES
+For each identified student thread, examine the SINGLE MOST RECENT message by timestamp:
+
+1. EXCLUDE TERMINAL CLOSURES: If the last message from a student is strictly a courtesy sign-off with no new question or actionable request (e.g., "Thanks!", "Got it", "Okay cool", "Appreciate the help"), EXCLUDE it from action required.
+2. CHECK LAST SENDER: 
+   - If the last message was sent by ME, and I did NOT make an unfulfilled promise -> EXCLUDE (The ball is in the student's court).
+   - If the last message was sent by the STUDENT (and is not a terminal closure) -> Mark as CONDITION A (Needs Reply).
+   - If I sent the last message BUT promised a future action (e.g., "I will update," "I'll check," "I'll give credit if..."), and no subsequent email resolves it -> Mark as CONDITION B (Pending Follow-up).
+
+---
+
+### STEP 3: CATEGORIZED OUTPUT FORMAT
+Format findings into text lists (no tables). Use these exact 4 categories:
+
+(1) Explicit questions awaiting answers
+[Condition A threads with direct queries, technical issues, or grade concerns]
+
+(2) Policy / extension requests
+[Condition A threads regarding absences, accommodations, late submissions, or extensions]
+
+(3) Submission confirmations / FYI
+[Condition A threads containing informational status updates or turned-in work alerts that require no heavy response]
+
+(4) Instructor-promised follow-ups still pending
+[Condition B threads where I promised a future action that remains incomplete]
+
+---
+
+### OUTPUT TEMPLATE
+For Groups 1–3:
+- [Student Name] | Subject: [Subject] | Date of Last Msg: [Date/Time]
+  Summary: [One-line summary of what they are asking or saying]
+
+For Group 4:
+- [Student Name] | Subject: [Subject] | Commitment Date: [Date/Time]
+  Promised Action: [Exact commitment made] | Current Status: [What is needed to close this]
+
+*If a group contains zero items, explicitly write "None."*
+
+REMEMBER: always add my outlook signature to any draft email - don't improvise!`
+            },
+            {
+                id: "doc4",
+                title: "Faculty Review Search Prompt.txt",
+                filename: "Faculty Review Search Prompt.txt",
+                category: "prompts",
+                categoryLabel: "AI Prompt",
+                badgeColor: "bg-purple-400/20 text-purple-400 border-purple-400/30",
+                icon: "fa-magnifying-glass-chart",
+                dateInfo: "M365 Dossier & Evaluation Discovery System",
+                summary: "Exhaustive M365 evidence discovery engine auditing OneDrive, Outlook, Teams, and SharePoint to compile faculty evaluation dossiers.",
+                content: `FACULTY REVIEW EVIDENCE DISCOVERY PROMPT
+
+OPTIONAL USER-SUPPLIED REVIEW PARAMETERS
+
+Faculty review type:
+[Veteran / Trial Period / Part-Time / Other / Unknown]
+
+Review year:
+[Leave blank to discover]
+
+Review-period start date:
+[Leave blank to discover]
+
+Review-period end date:
+[Leave blank to discover]
+
+Review submission deadline:
+[Leave blank to discover]
+
+Additional instructions or known review requirements:
+[Optional]
+
+If user-supplied dates are present, use them as the operational search constraints. Still compare those dates with current official CNM sources and clearly report any discrepancy.
+
+Do not replace user-supplied dates without identifying the difference and explaining which dates are being used for the report.
+
+
+DATA SOURCES TO SEARCH
+
+Search across my available Microsoft 365 data sources, including:
+
+- OneDrive files and folders
+- Outlook email, including sent, received, archived, deleted if searchable, and flagged messages
+- Outlook calendar events and meeting invitations
+- Teams meeting records, chats, and channel posts, if available
+- Microsoft Forms
+- Microsoft Lists
+- Microsoft Planner tasks
+- SharePoint documents and sites available to me
+- PowerPoint presentations
+- Word documents
+- Excel workbooks
+- PDFs
+- Meeting notes
+- Training records
+- Certificates
+- Other Microsoft 365 artifacts, if available
+
+Your goal is to identify activities, accomplishments, service contributions, professional development, leadership, teaching effectiveness, and institutional engagement activities that should be included in a faculty review, annual evaluation, promotion dossier, tenure portfolio, or professional activity report.
+
+
+REVIEW PERIOD VERIFICATION AND DATE CONSTRAINTS
+
+Before searching my Microsoft 365 data, determine the official review period that applies to this faculty review.
+
+1. Search current official CNM sources at cnm.edu, giving priority to:
+
+   - The current year’s Full-Time Faculty Professional Review Process
+   - The current year’s Veteran Faculty Review Form or Trial Period Review Form, as applicable
+   - The current year’s Part-Time Faculty Evaluation Form, if applicable
+   - The current Faculty Review Email Template
+   - Full-Time Faculty Expectations or Part-Time Faculty Expectations, as applicable
+   - Current Academic Affairs faculty evaluation instructions
+   - The current full-time faculty collective bargaining agreement, if applicable
+   - Any official CNM academic calendar or faculty review schedule specifically referenced by those materials
+   - Official CNM Human Resources, Academic Affairs, Education and Learning, Labor Relations, or faculty governance materials
+   - Any current CNM communication that explicitly establishes the review period or submission deadline
+
+2. Determine and report:
+
+   - Review year
+   - Applicable faculty review type
+   - Faculty classification, if known
+   - Official evidence-period start date
+   - Official evidence-period end date
+   - Review submission deadline, if published
+   - Whether different portions of the review use different evidence periods
+   - Whether previous-year or continuing activities may be included
+   - The CNM source supporting each date
+   - Document title
+   - Publication, revision, or form year
+   - Direct link to the source, when available
+   - Whether each date is explicitly stated or inferred
+
+3. Do not assume that the review period is the same as:
+
+   - The calendar year
+   - The fiscal year
+   - The academic year
+   - The contract year
+   - The year printed in the filename or title of a review form
+   - The year in which the review is submitted
+   - The date on which a document was created or posted
+
+Use a date range as the official review period only when an authoritative CNM source explicitly identifies it as the applicable review or evidence period.
+
+4. When evaluating the authority of a source, use the following priority order:
+
+   a. Current review form or instructions specifically applicable to my faculty classification and review type
+   b. Current official CNM faculty review process
+   c. Current collective bargaining agreement or institutional policy
+   d. Current official Academic Affairs or Human Resources communication
+   e. Current official CNM academic calendar or related schedule
+   f. Older official CNM documents
+   g. Dates inferred from Microsoft 365 communications
+
+5. If official CNM sources conflict:
+
+   - Prefer the most recent source specifically applicable to my faculty classification and review type.
+   - Report the conflicting dates and sources.
+   - Do not silently select a date range.
+   - Explain which source appears to control and why.
+   - Mark the review period as “Needs Verification” if the conflict cannot be resolved reliably.
+
+6. If user-supplied dates conflict with official CNM sources:
+
+   - Use the user-supplied dates as the operational search constraints.
+   - Report the discrepancy before presenting the findings.
+   - Show both the user-supplied dates and the dates found in official sources.
+   - Do not imply that the discrepancy has been resolved.
+   - Recommend that the dates be verified with the applicable dean, supervisor, or official review instructions.
+
+7. If the official review period cannot be verified:
+
+   - State that the review period is unverified.
+   - List the CNM sources searched.
+   - Use a user-supplied date range if one is provided.
+   - If no user-supplied range is available, organize findings by academic term and calendar year.
+   - Do not label any item as occurring within the official review period unless that period has been verified.
+   - Label the report as based on an “Unverified Review Period.”
+
+8. Before presenting the evidence report, include a REVIEW PERIOD USED section containing:
+
+   - Review type
+   - Faculty classification, if known
+   - Review year
+   - Evidence-period start date
+   - Evidence-period end date
+   - Submission deadline, if available
+   - Operational search start date
+   - Operational search end date
+   - Controlling CNM source
+   - Other sources consulted
+   - Whether the dates were explicitly stated or inferred
+   - Verification status
+
+Use one of the following verification statuses:
+
+   - Verified
+   - Provisionally Verified
+   - User Supplied
+   - Needs Verification
+   - Unverified
+
+
+SEARCH WINDOW
+
+After establishing the review period, search the verified review period and an appropriate surrounding context window.
+
+Unless the evidence or official instructions support a different window:
+
+- Search at least 90 days before the review-period start date.
+- Search at least 90 days after the review-period end date.
+- Use the surrounding period only to identify preparation, continuation, completion, recognition, or documentation connected to review-period activities.
+- Do not count an activity as occurring within the review period merely because a related document or email falls within the surrounding search window.
+- If a multiyear project or continuing appointment is discovered, search far enough backward to establish its beginning and far enough forward to determine its review-period status.
+- Clearly distinguish the operational search window from the official review period.
+
+
+GENERAL DISCOVERY GOAL
+
+Identify activities, accomplishments, service contributions, professional development, leadership, teaching effectiveness, institutional engagement, scholarly engagement, and other professional activities that may be relevant to a faculty review.
+
+For each item found, include:
+
+- Title or description
+- Activity date or date range
+- Review-period classification
+- Academic term, if identifiable
+- Evidence source
+- Direct reference or link to the evidence, when available
+- My role or level of participation
+- Organization, committee, department, school, or event involved
+- Concise summary suitable for inclusion in a faculty review
+- Leadership indicator
+- Confidence level
+- Explanation of any date uncertainty
+- Additional documentation that may be needed
+
+
+SERVICE AND COMMITTEE WORK
+
+Search for evidence of:
+
+- Department committees
+- School committees
+- College committees
+- Institution-wide committees
+- Faculty senate or governance activities
+- Shared governance
+- Search committees
+- Hiring committees
+- Interview committees
+- Curriculum committees
+- Assessment committees
+- Accreditation work
+- Advisory boards
+- Task forces
+- Working groups
+- Councils
+- Program review groups
+- Strategic planning groups
+- Policy development groups
+- Faculty review committees
+- Academic affairs committees
+- Student success committees
+- Technology committees
+- Accessibility committees
+- Professional development committees
+- Event planning committees
+- Community or industry advisory groups
+
+For committee service, attempt to determine:
+
+- Committee name
+- Appointment or service period
+- Number of meetings attended, when supported by evidence
+- Whether I was a member, chair, co-chair, secretary, organizer, presenter, facilitator, representative, or project lead
+- Deliverables or outcomes associated with my service
+- Whether the service continued from a previous review period
+- Whether substantive work occurred during the current review period
+
+
+LEADERSHIP AND ADMINISTRATIVE CONTRIBUTIONS
+
+Search for evidence of:
+
+- Chairing committees
+- Co-chairing committees
+- Organizing events
+- Coordinating projects
+- Running meetings
+- Facilitating workshops
+- Leading workgroups
+- Leading task forces
+- Mentoring faculty
+- Mentoring staff
+- Mentoring adjunct or part-time faculty
+- Departmental leadership
+- School or college leadership
+- Academic program coordination
+- Course coordination
+- Curriculum coordination
+- Assessment coordination
+- Accreditation leadership
+- Strategic planning
+- Project management
+- Event planning
+- Process improvement
+- Development of procedures, templates, guides, or institutional resources
+- Representing a department, school, program, or faculty group
+- Serving as a liaison
+- Leading technology or instructional initiatives
+- Supporting onboarding or orientation
+- Training colleagues
+- Leading collaborative course or program work
+
+Highlight leadership whenever the evidence shows that I:
+
+- Initiated an activity
+- Organized participants
+- Set an agenda
+- Scheduled meetings
+- Chaired or facilitated a meeting
+- Assigned or coordinated tasks
+- Developed materials
+- Led implementation
+- Provided training
+- Represented a group
+- Delivered a final product
+- Was identified as the primary contact
+- Was asked to advise or mentor others
+- Was responsible for follow-up or accountability
+
+
+PROFESSIONAL DEVELOPMENT
+
+Search for evidence of:
+
+- Workday training
+- Microsoft training
+- Microsoft 365 training
+- Copilot training
+- Artificial intelligence training
+- Technology training
+- Compliance training
+- Cybersecurity training
+- Professional certifications
+- Certificate programs
+- Webinars
+- Conferences attended
+- Workshops attended
+- Faculty development events
+- Teaching and learning training
+- Online courses
+- Recorded training completions
+- Convocation sessions
+- Faculty Focus Day sessions
+- Conference on Teaching and Learning sessions
+- Institutes
+- Symposia
+- Retreats
+- Quality Matters training
+- Instructional design training
+- Online teaching training
+- Brightspace training
+- Canvas training
+- Assessment training
+- Curriculum training
+- Accreditation training
+- Student success training
+- Advising training
+- Diversity or inclusion training
+- Leadership development
+- Software training
+- Industry or discipline-specific training
+
+For professional development, attempt to identify:
+
+- Event or course title
+- Provider
+- Completion or attendance date
+- Duration or number of hours
+- Credential or certificate earned
+- Relevance to teaching, service, leadership, or professional responsibilities
+- Evidence of subsequent application
+- Whether I attended, completed, presented, facilitated, or organized the activity
+
+
+PRESENTATIONS AND SCHOLARLY ENGAGEMENT
+
+Search for evidence of:
+
+- Faculty Focus Day presentations
+- Conference on Teaching and Learning presentations
+- Workshops delivered
+- Invited presentations
+- Conference presentations
+- Panel participation
+- Poster presentations
+- Faculty development sessions delivered
+- Training sessions delivered to others
+- Guest lectures
+- Demonstrations
+- Webinars delivered
+- Roundtable participation
+- Moderating or facilitating panels
+- Symposium participation
+- Conference attendance
+- Publications
+- Articles
+- Reports
+- White papers
+- Research activities
+- Applied scholarship
+- Scholarship of teaching and learning
+- Professional presentations
+- Institutional presentations
+- Community presentations
+
+For each presentation or scholarly activity, attempt to identify:
+
+- Presentation title
+- Event name
+- Host organization
+- Presentation date
+- Location or delivery format
+- Audience
+- Co-presenters
+- My role
+- Supporting slides, agenda, invitation, registration, program, or correspondence
+- Whether I developed the content
+- Whether the presentation was invited, selected, or required
+- Evidence of impact, feedback, or follow-up
+
+
+TEACHING IMPROVEMENT ACTIVITIES
+
+Search for evidence of:
+
+- Course redesign projects
+- Assessment initiatives
+- Curriculum development work
+- Curriculum revision
+- Curriculum mapping
+- New course development
+- Instructional innovation
+- Learning technology implementation
+- Student success initiatives
+- Learning management system improvements
+- Course shell development
+- Online course development
+- Hybrid course development
+- Course accessibility improvements
+- Open educational resource adoption or development
+- Quality Matters work
+- Student learning outcomes work
+- Assessment rubric development
+- Assessment reporting
+- Program assessment
+- Program review
+- Improved instructional materials
+- New assignments or projects
+- New assessment methods
+- Teaching experiments or pilots
+- Artificial intelligence integration
+- Copilot integration
+- Microsoft 365 integration
+- Brightspace or Canvas improvements
+- Adaptive or personalized learning
+- Retention initiatives
+- Advising improvements
+- Student orientation
+- New student support
+- Peer observations
+- Classroom observations
+- Response to student feedback
+- Improvements based on course evaluation results
+- Collaborative course design
+- Regular and substantive interaction improvements
+- Instructional technology implementation
+- Educational technology implementation
+
+For teaching improvement activities, attempt to identify:
+
+- Course or program involved
+- Term or date range
+- Problem or need addressed
+- Action taken
+- My role
+- Collaborators
+- Deliverables
+- Evidence of implementation
+- Evidence of student, faculty, course, or program impact
+- Whether the work was initiated, completed, or continued during the review period
+
+
+TEACHING EFFECTIVENESS AND STUDENT SUPPORT
+
+Search for evidence of:
+
+- Positive student feedback
+- Student course evaluation results
+- Student success improvements
+- Retention efforts
+- Advising
+- Academic advising
+- Student mentoring
+- Student referrals to support services
+- Early intervention
+- Faculty feedback activities
+- Orientation participation
+- Student organization support
+- Academic coaching
+- Course communication improvements
+- Accessibility accommodations
+- Regular and substantive interaction
+- Office hours improvements
+- Student engagement activities
+- Development of student resources
+- Support for struggling students
+- Support for online or hybrid learners
+- Teaching awards or recognition
+- Peer observation feedback
+- Classroom observation results
+- Improvements made in response to student evaluations
+
+Protect student privacy. Do not include student names, student identification numbers, grades, disability information, health information, or other personally identifiable student information in the final report.
+
+Summarize student-related evidence at an appropriate aggregate or de-identified level.
+
+
+PROFESSIONAL SERVICE
+
+Search for evidence of:
+
+- Peer reviews
+- External program reviews
+- External service
+- Community engagement
+- Professional organization involvement
+- Volunteer academic service
+- Industry engagement
+- Advisory service
+- Judging competitions
+- Reviewing conference proposals
+- Reviewing presentations
+- Reviewing publications
+- Serving on external committees
+- Community presentations
+- Partnerships with schools, employers, nonprofits, or public agencies
+- Discipline-related volunteer work
+- Support for professional associations
+- Support for accreditation or academic quality outside my department
+
+
+MEETINGS AND EVENTS
+
+Identify meetings and events where my role appears to be:
+
+- Organizer
+- Chair
+- Co-chair
+- Presenter
+- Facilitator
+- Committee member
+- Project lead
+- Trainer
+- Coordinator
+- Moderator
+- Panelist
+- Speaker
+- Mentor
+- Department or program representative
+- Primary contact
+- Note taker with substantive responsibility
+- Person responsible for follow-up
+
+Do not treat routine attendance at every meeting as a separate accomplishment.
+
+For recurring meetings:
+
+- Consolidate meetings from the same committee, project, or workgroup into one service item.
+- State the verified service date range.
+- Report the number of verified meetings when possible.
+- Identify meetings where I had a leadership role.
+- Describe substantive deliverables or outcomes.
+- Avoid inflating totals by counting duplicate invitations, updates, cancellations, or rescheduled occurrences.
+
+
+SEARCH TERMS AND INDICATORS
+
+Look for keywords and close variants, including:
+
+committee, council, senate, task force, workgroup, working group, advisory, board, governance, shared governance, meeting chair, chair, co-chair, facilitator, presenter, workshop, training, faculty focus day, conference on teaching and learning, CTL, professional development, Workday, accreditation, assessment, curriculum, program review, coordinator, organizer, panelist, speaker, moderator, leadership, service, faculty development, mentoring, certification, webinar, institute, symposium, retreat, presentation, conference, convocation, course redesign, student success, course development, curriculum mapping, strategic planning, search committee, hiring committee, interview committee, project lead, liaison, representative, deliverable, agenda, minutes, action items, implementation, pilot, initiative, completion certificate, attendance certificate, professional learning, invited speaker, keynote, roundtable, poster, peer review, peer observation, classroom observation, course evaluation, retention, advising, orientation, onboarding, HLC, Quality Matters, QM, OER, accessibility, Brightspace, Canvas, Microsoft 365, Copilot, artificial intelligence, AI training.
+
+
+ADDITIONAL FACULTY-SPECIFIC KEYWORDS
+
+Search for the following terms and reasonable spelling, capitalization, abbreviation, and plural variations:
+
+- BCIS
+- BCIS 1110
+- BCIS 1215
+- BCIS 1220
+- course coordinator
+- curriculum mapping
+- curriculum revision
+- curriculum development
+- outcomes assessment
+- assessment reporting
+- program assessment
+- program review
+- student learning outcomes
+- SLOs
+- teaching innovation
+- instructional technology
+- educational technology
+- LMS
+- Learning Management System
+- course shell
+- online teaching
+- hybrid teaching
+- Canvas
+- Brightspace
+- faculty mentoring
+- advising
+- academic advising
+- student success
+- retention initiative
+- orientation
+- new student orientation
+- faculty development
+- department meeting
+- division meeting
+- school meeting
+- professional learning
+- instructional design
+- OER
+- open educational resources
+- accessibility training
+- QM
+- Quality Matters
+- peer observation
+- classroom observation
+- assessment day
+- faculty retreat
+- onboarding
+- onboarding training
+- software training
+- AI training
+- artificial intelligence training
+- Copilot training
+- Microsoft 365 training
+- Excel training
+- Teams training
+- committee meeting
+- search committee
+- hiring committee
+- interview committee
+- accreditation
+- HLC
+- strategic planning
+- governance
+- shared governance
+- academic affairs
+- teaching excellence
+- conference attendance
+- conference presentation
+- workshop presenter
+- workshop facilitator
+- panel discussion
+- Faculty Focus Day
+- Conference on Teaching and Learning
+- CTL
+- convocation
+- course redesign
+- course revision
+- master syllabus
+- master course
+- course outcomes
+- assessment rubric
+- assessment results
+- course evaluation
+- student evaluation
+- faculty evaluation
+- curriculum committee
+- advisory committee
+- advisory board
+- task force
+- working group
+- project lead
+- faculty senate
+- faculty representative
+- program coordinator
+- department coordinator
+- process improvement
+- course accessibility
+- accessible documents
+- regular and substantive interaction
+- RSI
+- collaborative course design
+- student retention
+- student engagement
+- early intervention
+- faculty feedback
+- mentoring agreement
+- teaching award
+- faculty recognition
+
+
+REVIEW-PERIOD EVIDENCE RULES
+
+For every finding, identify the best-supported activity date or date range.
+
+Do not rely only on the creation, modification, upload, or email date of the supporting artifact when the artifact describes an activity that occurred on another date.
+
+Classify every finding as one of the following:
+
+- Within Review Period
+- Spans Review-Period Boundary
+- Outside Review Period but Contextually Relevant
+- Date Uncertain
+
+Apply the following rules:
+
+1. Within Review Period
+
+Classify an activity as “Within Review Period” when the activity itself occurred within the verified start and end dates.
+
+2. Spans Review-Period Boundary
+
+Use “Spans Review-Period Boundary” when a committee appointment, project, leadership assignment, course redesign, accreditation activity, curriculum initiative, assessment project, or similar work began before or continued after the review period but included substantive participation during the review period.
+
+3. Outside Review Period but Contextually Relevant
+
+Use “Outside Review Period but Contextually Relevant” only when the item:
+
+- Documents preparation for an in-period activity
+- Documents completion or impact of an in-period activity
+- Provides recognition or confirmation of an in-period accomplishment
+- Demonstrates continuation of a significant multiyear responsibility
+- Establishes my appointment or role in an activity that continued into the review period
+- Provides evidence needed to understand the significance of an in-period accomplishment
+
+4. Date Uncertain
+
+Use “Date Uncertain” when:
+
+- Only the supporting artifact date is known
+- The activity date cannot be established reliably
+- Different sources contain inconsistent dates
+- The evidence suggests an activity occurred but does not establish when
+- A recurring activity cannot be tied reliably to the review period
+
+5. Counting rules
+
+- Do not count an outside-period activity in review-period totals unless substantive work occurred within the review period.
+- Do not count a date-uncertain item in verified review-period totals.
+- Report boundary and uncertain items separately.
+- Do not count invitations, plans, registrations, or proposed activities as completed accomplishments without completion or participation evidence.
+- An accepted invitation may be reported as a role or commitment, but not as a completed presentation or service activity unless later evidence shows completion.
+
+6. Controlling date
+
+When several dates exist, use the date of the underlying activity as the controlling date.
+
+Examples include:
+
+- Presentation date rather than the date the slides were modified
+- Training completion date rather than the registration date
+- Meeting date rather than the invitation creation date
+- Committee service range rather than the date of one email
+- Course implementation term rather than the date planning began
+- Project completion date rather than the date a final file was uploaded
+
+Retain the other dates as supporting evidence when useful.
+
+7. Multiple-source evidence
+
+When multiple sources describe the same activity:
+
+- Use the actual activity date as the controlling date.
+- Consolidate the evidence into one finding.
+- List the strongest supporting sources.
+- Retain additional sources when they establish role, leadership, completion, participation, or impact.
+- Do not create duplicate accomplishments from an email, calendar invitation, Teams post, agenda, and presentation that all describe the same activity.
+
+8. Recurring activities
+
+For recurring meetings, committees, training series, or projects:
+
+- Consolidate related occurrences into one finding when they represent the same responsibility.
+- State the activity date range.
+- Report the number of verified occurrences when possible.
+- Identify individual occurrences only when they involved a distinct presentation, leadership responsibility, deliverable, or accomplishment.
+
+9. Cross-period activities
+
+For activities that cross review periods:
+
+- Describe only the work attributable to the current review period when the evidence supports that distinction.
+- Identify the full project or appointment range.
+- Explain what occurred during the current review period.
+- Do not claim the entire multiyear accomplishment as current-period work.
+
+10. Surrounding evidence
+
+Do not exclude potentially relevant evidence solely because its source artifact was created shortly before or after the review period.
+
+Examine the content to determine whether it documents an activity that occurred during the review period.
+
+11. Date transparency
+
+Clearly distinguish among:
+
+- Dates explicitly stated in official CNM sources
+- Dates directly supported by Microsoft 365 evidence
+- Dates inferred from context
+- Dates that remain uncertain
+
+
+ROLE AND PARTICIPATION ANALYSIS
+
+For each finding, determine my role using the strongest available evidence.
+
+Possible roles include:
+
+- Attendee
+- Participant
+- Committee member
+- Faculty representative
+- Organizer
+- Coordinator
+- Chair
+- Co-chair
+- Presenter
+- Facilitator
+- Trainer
+- Moderator
+- Panelist
+- Speaker
+- Project lead
+- Course coordinator
+- Curriculum developer
+- Assessment lead
+- Mentor
+- Advisor
+- Reviewer
+- Author
+- Co-author
+- Contributor
+- Primary contact
+- Liaison
+- Volunteer
+- Institutional representative
+
+Do not infer a leadership role solely because I attended a meeting or received an email.
+
+Leadership should be supported by indicators such as:
+
+- I organized or scheduled the activity.
+- I created or distributed the agenda.
+- I chaired or facilitated the meeting.
+- I developed the presentation or training materials.
+- I assigned or coordinated work.
+- I was identified as the project lead or primary contact.
+- I represented a department, school, program, or faculty group.
+- I was responsible for implementation or follow-up.
+- I trained, mentored, or advised others.
+- I produced a substantive deliverable.
+- I initiated the project or activity.
+
+
+CONFIDENCE LEVELS
+
+Assign every finding one of the following confidence levels:
+
+High Confidence
+
+Use when clear evidence establishes the activity, date, and my role. Examples include:
+
+- Completion certificate
+- Final agenda naming me as presenter
+- Calendar event showing I was the organizer
+- Committee roster naming me as a member or chair
+- Final presentation file supported by event correspondence
+- Meeting minutes documenting my participation or leadership
+- Official appointment notice
+- Final report identifying my contribution
+
+Medium Confidence
+
+Use when the activity appears well supported but one element remains incomplete, such as:
+
+- My exact role is unclear
+- Completion is strongly suggested but not directly documented
+- The date is approximate
+- Participation is shown through several indirect sources
+- A draft document appears to have been used but final use is not confirmed
+
+Low Confidence
+
+Use when the item is potentially relevant but supported mainly by:
+
+- Keyword matches
+- Isolated references
+- Unconfirmed invitations
+- Tentative plans
+- Draft materials
+- Ambiguous ownership
+- Indirect mentions
+- Incomplete or conflicting dates
+
+Explain briefly why Medium or Low confidence was assigned.
+
+
+DUPLICATE AND FALSE-POSITIVE CONTROL
+
+Eliminate duplicates across email, calendar, Teams, OneDrive, SharePoint, and other sources.
+
+Treat records as likely duplicates when they share several of the following:
+
+- Same activity title
+- Same committee or event
+- Same date or date range
+- Same participants
+- Same presentation title
+- Same attachment
+- Same project
+- Same meeting series
+- Same deliverable
+
+Do not treat the following as separate accomplishments unless they represent distinct work:
+
+- An initial invitation and an updated invitation
+- A meeting invitation and its reminder
+- Draft and final versions of the same presentation
+- An email attaching a document and the document itself
+- A Teams post linking to the same document
+- Repeated calendar occurrences for routine committee attendance
+- A registration confirmation and a completion certificate for the same training
+- Multiple emails discussing the same completed activity
+
+When duplicates provide different useful evidence, consolidate them and retain the strongest references.
+
+
+PRIVACY AND RELEVANCE CONSTRAINTS
+
+- Do not include student names or personally identifiable student information.
+- Do not include student identification numbers, grades, health information, disability information, or private advising details.
+- Do not reproduce confidential personnel information about colleagues.
+- Do not include routine administrative messages that do not demonstrate meaningful activity.
+- Do not treat merely receiving a message as evidence of participation.
+- Do not treat being invited to an event as evidence that I attended.
+- Do not treat registration as evidence of completion unless participation or completion is also supported.
+- Do not treat possession of a document as proof that I authored or contributed to it.
+- Do not claim outcomes or impact that the evidence does not support.
+- Use cautious wording when evidence is incomplete.
+- Favor inclusion over exclusion for potentially relevant professional evidence, but assign an appropriate confidence level and clearly state what remains unverified.
+
+
+REPORT ORGANIZATION
+
+Create a comprehensive report organized into the following sections:
+
+1. Review Period Used
+2. Executive Summary
+3. Service and Committee Work
+4. Leadership and Administrative Contributions
+5. Professional Development
+6. Presentations and Scholarly Engagement
+7. Teaching Improvement Activities
+8. Teaching Effectiveness and Student Support
+9. Professional Service
+10. Meetings and Events
+11. Activities Spanning the Review-Period Boundary
+12. Contextually Relevant Activities Outside the Review Period
+13. Date-Uncertain or Low-Confidence Findings
+14. Likely Accomplishments Needing Additional Documentation
+15. Review-Period Totals
+16. Supplementary Totals
+17. Evidence Gaps and Recommended Follow-Up
+
+
+REQUIREMENTS FOR EACH FINDING
+
+For each item, include:
+
+- Activity title
+- Category
+- Activity date or date range
+- Academic term, if known
+- Review-period classification
+- My role
+- Leadership status: Yes, No, or Possible
+- Organization, committee, department, school, or event
+- Concise faculty-review summary
+- Evidence source type
+- Evidence title or subject
+- Evidence date
+- Direct reference or link, when available
+- Additional supporting sources
+- Confidence level
+- Date confidence
+- Documentation gaps
+- Notes explaining any inference
+
+Write each summary in concise, professional language suitable for adaptation into a faculty review.
+
+Do not overstate my role, the outcome, or the significance of an activity.
+
+
+OUTPUT REQUIREMENTS
+
+1. Group findings by category.
+
+2. Within each category, sort findings chronologically by the activity date, not merely by the evidence artifact date.
+
+3. Place items without reliable dates at the end of the applicable category.
+
+4. Eliminate duplicates.
+
+5. Label every item with one of the following review-period classifications:
+
+   - Within Review Period
+   - Spans Review-Period Boundary
+   - Outside Review Period but Contextually Relevant
+   - Date Uncertain
+
+6. Clearly highlight activities that demonstrate leadership.
+
+7. Clearly distinguish completed activities from:
+
+   - Planned activities
+   - Invitations
+   - Registrations
+   - Drafts
+   - Proposed projects
+   - Unverified participation
+
+8. Provide review-period totals for:
+
+   - Committees served on
+   - Search or hiring committees served on
+   - Meetings organized
+   - Meetings chaired or facilitated
+   - Trainings completed
+   - Professional development activities
+   - Presentations delivered
+   - Workshops or training sessions delivered
+   - Leadership activities
+   - Curriculum or assessment activities
+   - Teaching improvement activities
+   - Professional service activities
+
+9. Provide separate supplementary totals for:
+
+   - Activities spanning the review-period boundary
+   - Contextually relevant activities outside the review period
+   - Date-uncertain activities
+   - Low-confidence findings
+
+Do not combine outside-period, boundary, or date-uncertain items with verified review-period totals unless substantive current-period work is independently supported.
+
+10. For all totals:
+
+   - Count consolidated activities rather than every supporting artifact.
+   - Avoid double-counting recurring meetings.
+   - Explain the counting method.
+   - Identify any total that is approximate.
+   - Do not count planned or unverified activities as completed.
+
+11. Identify likely accomplishments that may need additional documentation.
+
+Examples include:
+
+   - A presentation without a final program
+   - Training attendance without a certificate
+   - Committee service without a roster or appointment message
+   - A leadership role without meeting minutes
+   - A project without a final deliverable
+   - A multiyear activity without evidence of current-period participation
+   - A conference registration without attendance evidence
+
+12. Include direct references to supporting emails, calendar events, Teams records, meeting invitations, documents, presentations, certificates, or files when available.
+
+13. When direct links are unavailable, provide enough identifying information to locate the evidence, including:
+
+   - Email subject
+   - Sender or recipient
+   - Date
+   - Calendar event title
+   - File name
+   - Folder or SharePoint location
+   - Teams channel or chat name
+   - Meeting date
+   - Document title
+
+14. Include an Evidence Gaps and Recommended Follow-Up section.
+
+For each gap, recommend a specific action, such as:
+
+   - Locate a completion certificate
+   - Request a committee appointment confirmation
+   - Find the final event agenda
+   - Locate meeting minutes
+   - Verify the service term
+   - Confirm presentation delivery
+   - Find the final project deliverable
+   - Verify the official review-period dates
+   - Ask the appropriate CNM office for clarification
+
+15. Include an Executive Summary that identifies:
+
+   - The strongest accomplishments
+   - The clearest leadership contributions
+   - The most significant teaching improvements
+   - The most substantial service activities
+   - The most relevant professional development
+   - Any major evidence gaps
+   - The overall reliability of the evidence set
+
+16. In the Executive Summary, distinguish between:
+
+   - Verified accomplishments
+   - Likely accomplishments
+   - Items that still require documentation
+
+17. Use objective, professional, evidence-based wording.
+
+18. Be exhaustive. Favor inclusion over exclusion when an item appears potentially relevant to faculty service, leadership, professional development, teaching improvement, teaching effectiveness, institutional engagement, or scholarly activity.
+
+19. Do not present uncertain activities as established facts. Include them in the appropriate uncertainty section and assign a confidence level.
+
+20. If access to a requested Microsoft 365 source is unavailable, state:
+
+   - Which source could not be searched
+   - How that limitation may affect the report
+   - What additional evidence might exist in that source
+
+21. Do not state that the search is comprehensive unless all listed and available sources were actually searched.
+
+22. At the end of the report, include a Search Coverage section listing:
+
+   - Sources searched successfully
+   - Sources searched partially
+   - Sources unavailable
+   - Date range searched in each source
+   - Important search limitations
+   - Any searches that may need to be repeated manually`
+            },
+            {
+                id: "doc5",
+                title: "semester analysis.txt",
+                filename: "semester analysis.txt",
+                category: "prompts",
+                categoryLabel: "AI Prompt",
+                badgeColor: "bg-purple-400/20 text-purple-400 border-purple-400/30",
+                icon: "fa-chart-line",
+                dateInfo: "Instructional Design Optimization Framework",
+                summary: "Applies Elon Musk's 5-step process improvement algorithm to analyze semester student email datasets and streamline course administration.",
+                content: `Act as an elite instructional designer and operations consultant. I am providing you with a dataset containing a full semester's worth of student email communications from a academic term. 
+
+Analyze this data by applying Elon Musk’s "5-Step Algorithm" for process improvement. The goal is to identify points of confusion, eliminate redundant communication, and generate actionable changes for next semester to drastically improve efficiency and instructional quality.
+
+Here are the 5 steps you must strictly follow in your analysis, applied directly to academic administration and student support:
+
+---
+
+### Step 1: Question Every Requirement (Make Requirements Less "Dumb")
+- Identify why students are asking the questions they are asking. 
+- Audit my syllabus policies, assignment instructions, or course navigation rules that triggered student emails.
+- Highlight "inherited" academic rules, ambiguous instructions, or unclear expectations that caused student confusion (e.g., confusing drop-box locations, vague rubrics, ambiguous due date times).
+- *Output Needed:* A list of the top 3-5 syllabus/course requirements that created unnecessary friction and how to redefine or eliminate them.
+
+### Step 2: Delete Unnecessary Parts or Processes
+- Analyze email volume to identify repeated questions that should never have reached my inbox.
+- Categorize recurring topics (e.g., "Where is the link?", "When is this due?", "How do I submit?").
+- *Output Needed:* Recommend at least 3-5 things to aggressively DELETE or eliminate from my workflow or course structure. If I don't feel like I'm stripping away too much, I haven't deleted enough.
+
+### Step 3: Simplify and Optimize (Only AFTER Steps 1 & 2)
+- Focus ONLY on the essential information that survived Steps 1 & 2.
+- Evaluate the friction points in assignment prompts, LMS layout, or feedback loops.
+- *Output Needed:* Concrete redesigns for surviving course elements—such as rewriting a notoriously confusing prompt, creating a single visual assignment checklist, or streamlining the course menu.
+
+### Step 4: Accelerate Cycle Time
+- Analyze how fast students needed answers vs. how quickly they received them, and where delays blocked student progress.
+- Look for bottlenecks in grading timelines, late-work inquiries, or clarification emails right before major deadlines.
+- *Output Needed:* Practical strategies to drastically shorten response and resolution times (e.g., establishing a 3-minute video overview before major projects, setting up a peer-to-peer discussion forum for quick Q&A).
+
+### Step 5: Automate Last
+- Do NOT suggest automated tools for processes that should be deleted or simplified.
+- Identify legitimate, standardized communications that can be automated without losing a personal touch.
+- *Output Needed:* Specific automation recommendations (e.g., scheduled LMS announcements, automated auto-responder FAQs, text snippet templates/macros for frequent grading feedback, or AI chatbot knowledge bases for course policies).
+
+---
+
+### **Required Summary Deliverables**
+At the end of your analysis, summarize the findings into three key sections:
+
+1. **Top Recurring Confusion Patterns:** What were the top 5 questions students asked over and over, categorized by week/module in the term?
+2. **Actionable Changes for Next Semester:** A prioritized checklist of modifications to make to the Syllabus, LMS setup, and Assignment Guidelines before the next term starts.
+3. **Estimated Time Savings:** An estimate of how many total emails and hours this strategy will save in upcoming semesters.`
+            }
+        ];
+
+        let activeCategory = 'all';
+
+        // Render documents dynamically
+        function renderDocuments() {
+            const grid = document.getElementById('documentGrid');
+            const searchVal = (document.getElementById('searchInput').value || document.getElementById('searchInputMobile').value || '').toLowerCase();
+            
+            grid.innerHTML = '';
+
+            const filtered = documentsData.filter(doc => {
+                const matchesSearch = doc.title.toLowerCase().includes(searchVal) || 
+                                      doc.summary.toLowerCase().includes(searchVal) || 
+                                      doc.content.toLowerCase().includes(searchVal) ||
+                                      doc.filename.toLowerCase().includes(searchVal);
+                return matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="p-12 text-center glass-panel rounded-3xl border border-slate-800">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3 block"></i>
+                        <h4 class="text-base font-bold text-slate-300">No matching documents found</h4>
+                        <p class="text-xs text-slate-500 mt-1">Try adjusting your category filter or keyword search query.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(doc => {
+                const lineCount = doc.content.split('\n').length;
+                const charCount = doc.content.length;
+
+                const card = document.createElement('div');
+                card.className = 'glass-panel rounded-3xl p-6 border border-slate-800 space-y-4 relative transition-all duration-300 hover:border-slate-700 shadow-xl';
+                card.id = `card-${doc.id}`;
+
+                card.innerHTML = `
+                    <!-- Header Bar -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                        <div class="flex items-start gap-3">
+                            <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-cnm-gold text-lg shrink-0 mt-0.5">
+                                <i class="fa-solid ${doc.icon}"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${doc.badgeColor}">${doc.categoryLabel}</span>
+                                    <span class="text-[11px] font-mono text-slate-400"><i class="fa-solid fa-clock mr-1 text-cnm-gold"></i>${doc.dateInfo}</span>
+                                </div>
+                                <h3 class="text-lg font-extrabold text-white tracking-tight">${doc.title}</h3>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
+                            <button onclick="copyDocumentText('${doc.id}')" class="px-3.5 py-2 rounded-xl bg-cnm-gold text-slate-950 font-mono font-bold text-xs hover:bg-yellow-400 transition-all flex items-center gap-1.5 shadow-md shadow-cnm-gold/10">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copy Text</span>
+                            </button>
+                            <button onclick="downloadDocumentTxt('${doc.id}')" class="px-3.5 py-2 rounded-xl bg-slate-800 text-slate-200 border border-slate-700 font-mono font-bold text-xs hover:bg-slate-700 hover:text-white hover:border-cnm-gold transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-download text-cnm-accent"></i>
+                                <span>Download .txt</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Summary Paragraph -->
+                    <p class="text-xs text-slate-300 leading-relaxed font-sans">${doc.summary}</p>
+
+                    <!-- Text View Container -->
+                    <div class="relative group">
+                        <div class="flex items-center justify-between bg-slate-950 border-t border-x border-slate-800 rounded-t-2xl px-4 py-2 text-[11px] font-mono text-slate-400">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-file-code text-cnm-gold"></i>
+                                <span class="text-slate-200 font-semibold">${doc.filename}</span>
+                            </span>
+                            <div class="flex items-center gap-4 text-[10px]">
+                                <span>Lines: <strong class="text-cnm-accent">${lineCount}</strong></span>
+                                <span>Chars: <strong class="text-emerald-400">${charCount}</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-b-2xl bg-slate-950 border border-slate-800 text-slate-200 text-xs text-container max-h-[420px] overflow-y-auto leading-relaxed select-text shadow-inner">
+                            ${escapeHtml(doc.content)}
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Helper to prevent HTML injection in pre-formatted text
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Copy Text Functionality
+        function copyDocumentText(docId) {
+            const doc = documentsData.find(d => d.id === docId);
+            if (!doc) return;
+
+            // Fallback copy method compatible with iFrame & standard environments
+            const textArea = document.createElement("textarea");
+            textArea.value = doc.content;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast(`Copied "${doc.title}" to clipboard!`);
+            } catch (err) {
+                showToast(`Failed to copy text automatically`);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Download TXT File Functionality
+        function downloadDocumentTxt(docId) {
+            const doc = documentsData.find(d => d.id === docId);
+            if (!doc) return;
+
+            const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = doc.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast(`Downloaded ${doc.filename}`);
+        }
+
+        // Category Filter
+        function setCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`cat-${cat}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderDocuments();
+        }
+
+        // Filter Handlers
+        function filterDocuments() {
+            renderDocuments();
+        }
+
+        function filterDocumentsMobile() {
+            renderDocuments();
+        }
+
+        // Toast Handler
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Theme Toggle Handler
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-indigo-500';
+                themeText.innerText = 'Dark';
+                localStorage.setItem('cnm_faculty_hub_theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-cnm-gold';
+                themeText.innerText = 'Light';
+                localStorage.setItem('cnm_faculty_hub_theme', 'dark');
+            }
+        }
+
+        // Initialize on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('cnm_faculty_hub_theme') === 'light') {
+                document.documentElement.classList.remove('dark');
+                const icon = document.getElementById('themeIcon');
+                const text = document.getElementById('themeText');
+                if (icon && text) {
+                    icon.className = 'fa-solid fa-moon text-indigo-500';
+                    text.innerText = 'Dark';
+                }
+            }
+
+            renderDocuments();
+        });
+    </script>
+</body>
+</html>
